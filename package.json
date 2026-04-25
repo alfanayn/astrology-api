@@ -1,0 +1,8 @@
+{
+  "name": "astrology-api-core",
+  "version": "1.0.0",
+  "dependencies": {
+    "swisseph": "^0.7.1",
+    "cors": "^2.8.5"
+  }
+}
