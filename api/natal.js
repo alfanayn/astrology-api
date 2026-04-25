@@ -1,6 +1,9 @@
-const swisseph = require('swisseph');
+const swisseph = require('sweph'); 
 
 export default function handler(req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
+
     const { year, month, day, hour, min, lat, lng } = req.query;
 
     if (!year) return res.status(400).json({ error: "Eksik parametre!" });

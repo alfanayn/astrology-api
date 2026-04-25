@@ -2,7 +2,7 @@
   "name": "astrology-api-core",
   "version": "1.0.0",
   "dependencies": {
-    "swisseph": "latest",
+    "sweph": "^2.10.3-5",
     "cors": "^2.8.5"
   }
 }
