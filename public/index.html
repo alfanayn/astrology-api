@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birth Chart API – whatismyzodiac.com</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fff;
+      --ink: #0b1220;
+      --muted: rgba(11,18,32,.6);
+      --line: rgba(11,18,32,.1);
+      --r: 20px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: linear-gradient(135deg, #8EC5FF 0%, #FFC3E0 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--ink);
+    }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; }
+
+    .hero {
+      background: #fff;
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(11,18,32,.12);
+      margin-bottom: 24px;
+    }
+    .hero h1 { font-family: Montserrat, sans-serif; font-size: 32px; font-weight: 900; letter-spacing: -.02em; margin-bottom: 8px; }
+    .hero p  { color: var(--muted); font-size: 15px; }
+
+    .panel {
+      background: #fff;
+      border-radius: var(--r);
+      border: 1px solid var(--line);
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(11,18,32,.08);
+      margin-bottom: 20px;
+    }
+    .panel h2 { font-family: Montserrat, sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .04em; }
+    input, select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      font-size: 15px;
+      background: #fafafa;
+      transition: border .2s;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: #8EC5FF; background: #fff; }
+
+    .btn {
+      background: linear-gradient(135deg, #8EC5FF, #c97fcb);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: -.01em;
+      transition: opacity .2s, transform .1s;
+    }
+    .btn:hover { opacity: .92; }
+    .btn:active { transform: scale(.98); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* autocomplete */
+    .loc-wrap { position: relative; }
+    .suggestions {
+      position: absolute; top: 100%; left: 0; right: 0; z-index: 99;
+      background: #fff; border: 1.5px solid var(--line);
+      border-top: none; border-radius: 0 0 10px 10px;
+      max-height: 220px; overflow-y: auto; display: none;
+    }
+    .sugg-item {
+      padding: 10px 14px; font-size: 14px; cursor: pointer;
+      border-bottom: 1px solid var(--line);
+      transition: background .15s;
+    }
+    .sugg-item:hover { background: #f0f7ff; }
+
+    /* Results */
+    #results { display: none; }
+    .big-three {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;
+    }
+    .big-card {
+      background: linear-gradient(135deg, #f0f7ff, #fdf0ff);
+      border-radius: 16px; padding: 20px; text-align: center;
+    }
+    .big-card .label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .big-card .glyph { font-size: 36px; margin: 8px 0 4px; }
+    .big-card .sign  { font-family: Montserrat; font-size: 18px; font-weight: 800; }
+    .big-card .deg   { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    .planets-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px;
+    }
+    .planet-card {
+      border: 1.5px solid var(--line); border-radius: 12px; padding: 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .planet-card .picon { font-size: 22px; }
+    .planet-card .pname { font-size: 11px; color: var(--muted); font-weight: 600; }
+    .planet-card .psign { font-size: 15px; font-weight: 700; }
+    .planet-card .pdeg  { font-size: 11px; color: var(--muted); }
+    .retro { color: #c97fcb; font-size: 10px; font-weight: 700; }
+
+    .houses-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;
+    }
+    .house-card {
+      border: 1.5px solid var(--line); border-radius: 12px; padding: 14px;
+    }
+    .house-num { font-size: 11px; color: var(--muted); font-weight: 700; margin-bottom: 2px; }
+    .house-sign { font-size: 16px; font-weight: 800; }
+    .house-theme { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .error-box {
+      background: #fff0f0; border: 1.5px solid #ffcccc;
+      border-radius: 12px; padding: 16px; color: #c00;
+      font-size: 14px; display: none; margin-bottom: 16px;
+    }
+    .loader { text-align: center; padding: 32px; color: var(--muted); font-size: 14px; display: none; }
+
+    /* API Docs section */
+    .code-block {
+      background: #0b1220; color: #e2e8f0; border-radius: 12px;
+      padding: 20px; font-family: monospace; font-size: 13px;
+      line-height: 1.7; overflow-x: auto; margin-top: 12px;
+    }
+    .code-block .k { color: #8EC5FF; }
+    .code-block .s { color: #FFC3E0; }
+    .code-block .c { color: #64748b; }
+
+    @media(max-width:600px) {
+      .big-three { grid-template-columns: 1fr; }
+      .grid-3    { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <h1>✨ Swiss Ephemeris Birth Chart API</h1>
+    <p>Powered by Swiss Ephemeris (Moshier engine) · Built for <strong>whatismyzodiac.com</strong> · Open source on GitHub</p>
+  </div>
+
+  <!-- Calculator UI -->
+  <div class="panel">
+    <h2>🔭 Birth Chart Calculator</h2>
+
+    <div class="grid grid-3">
+      <div>
+        <label>Day</label>
+        <select id="day"></select>
+      </div>
+      <div>
+        <label>Month</label>
+        <select id="month">
+          <option value="">Month</option>
+          <option value="1">January</option><option value="2">February</option>
+          <option value="3">March</option><option value="4">April</option>
+          <option value="5">May</option><option value="6">June</option>
+          <option value="7">July</option><option value="8">August</option>
+          <option value="9">September</option><option value="10">October</option>
+          <option value="11">November</option><option value="12">December</option>
+        </select>
+      </div>
+      <div>
+        <label>Year</label>
+        <input type="number" id="year" placeholder="1990" min="1900" max="2100">
+      </div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <label>Hour (local)</label>
+        <select id="hour"></select>
+      </div>
+      <div>
+        <label>Minute</label>
+        <select id="minute"></select>
+      </div>
+      <div>
+        <label>UTC Offset</label>
+        <select id="utcOffset"></select>
+      </div>
+      <div>
+        <label>House System</label>
+        <select id="houseSystem">
+          <option value="W">Whole Sign</option>
+          <option value="P">Placidus</option>
+          <option value="K">Koch</option>
+          <option value="R">Regiomontanus</option>
+          <option value="E">Equal</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <label>Birth City</label>
+      <div class="loc-wrap">
+        <input type="text" id="locInput" placeholder="Type a city…" autocomplete="off">
+        <div class="suggestions" id="suggestions"></div>
+      </div>
+      <input type="hidden" id="lat">
+      <input type="hidden" id="lng">
+    </div>
+
+    <button class="btn" id="btnCalc">Calculate Birth Chart ✨</button>
+  </div>
+
+  <div class="error-box" id="errBox"></div>
+  <div class="loader" id="loader">Calculating with Swiss Ephemeris…</div>
+
+  <div id="results">
+    <div class="panel">
+      <h2>🌟 Your Big Three</h2>
+      <div class="big-three" id="bigThree"></div>
+      <div style="font-size:12px; color:var(--muted);" id="metaLine"></div>
+    </div>
+
+    <div class="panel">
+      <h2>🪐 Planetary Positions</h2>
+      <div class="planets-grid" id="planetsGrid"></div>
+    </div>
+
+    <div class="panel">
+      <h2>🏠 Houses (Whole Sign)</h2>
+      <div class="houses-grid" id="housesGrid"></div>
+    </div>
+  </div>
+
+  <!-- API Docs -->
+  <div class="panel" style="margin-top:32px;">
+    <h2>📡 API Reference</h2>
+    <p style="color:var(--muted); font-size:14px; margin-bottom:12px;">Use this API from your own site or tools. CORS is open.</p>
+
+    <p style="font-size:13px; font-weight:600; margin-bottom:6px;">GET /api/birthchart</p>
+    <div class="code-block">
+<span class="c">// Example request</span>
+<span class="k">GET</span> /api/birthchart<span class="s">?year=1990&month=5&day=15&hour=14&minute=30&lat=41.01&lng=28.98&utcOffset=3&houseSystem=W</span>
+
+<span class="c">// Response</span>
+{
+  <span class="s">"ok"</span>: true,
+  <span class="s">"chart"</span>: {
+    <span class="s">"bigThree"</span>: { <span class="s">"sun"</span>: {...}, <span class="s">"moon"</span>: {...}, <span class="s">"ascendant"</span>: {...} },
+    <span class="s">"planets"</span>: [ { <span class="s">"name"</span>: <span class="s">"Sun"</span>, <span class="s">"sign"</span>: <span class="s">"Taurus"</span>, <span class="s">"degree"</span>: 24, <span class="s">"retrograde"</span>: false, ... } ],
+    <span class="s">"houses"</span>: { <span class="s">"wholeSign"</span>: [...], <span class="s">"cusps"</span>: [...] }
+  }
+}</div>
+
+    <p style="font-size:13px; font-weight:600; margin:16px 0 6px;">POST /api/synastry</p>
+    <div class="code-block">
+<span class="k">POST</span> /api/synastry
+<span class="c">Content-Type: application/json</span>
+
+{
+  <span class="s">"personA"</span>: { <span class="s">"year"</span>:1990, <span class="s">"month"</span>:5, <span class="s">"day"</span>:15, <span class="s">"hour"</span>:14, <span class="s">"minute"</span>:30,
+               <span class="s">"lat"</span>:41.01, <span class="s">"lng"</span>:28.98, <span class="s">"utcOffset"</span>:3 },
+  <span class="s">"personB"</span>: { <span class="s">"year"</span>:1992, <span class="s">"month"</span>:8, <span class="s">"day"</span>:22, <span class="s">"hour"</span>:9,  <span class="s">"minute"</span>:15,
+               <span class="s">"lat"</span>:41.01, <span class="s">"lng"</span>:28.98, <span class="s">"utcOffset"</span>:3 }
+}</div>
+  </div>
+
+</div>
+
+<script>
+  // ── Populate selects ─────────────────────────────────────────────────────
+  const $ = id => document.getElementById(id);
+
+  for(let i=1; i<=31; i++) $("day").add(new Option(i,i));
+  for(let i=0; i<=23; i++) $("hour").add(new Option(String(i).padStart(2,"0"), i));
+  for(let i=0; i<=59; i++) $("minute").add(new Option(String(i).padStart(2,"0"), i));
+
+  const utcSel = $("utcOffset");
+  for(let i=-12; i<=14; i++) {
+    const label = i >= 0 ? `UTC+${i}` : `UTC${i}`;
+    const opt = new Option(label, i);
+    if(i === 3) opt.selected = true; // Istanbul default
+    utcSel.add(opt);
+  }
+
+  // ── City Autocomplete ───────────────────────────────────────────────────
+  let debounce;
+  $("locInput").addEventListener("input", () => {
+    clearTimeout(debounce);
+    const q = $("locInput").value.trim();
+    if(q.length < 2) { $("suggestions").style.display="none"; return; }
+    debounce = setTimeout(() => searchCity(q), 250);
+  });
+
+  async function searchCity(q) {
+    try {
+      const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=8&language=en&format=json`;
+      const data = await (await fetch(url)).json();
+      const results = data?.results || [];
+      if(!results.length) { $("suggestions").style.display="none"; return; }
+
+      $("suggestions").innerHTML = results.map(r => {
+        const label = [r.name, r.admin1, r.country].filter(Boolean).join(", ");
+        return `<div class="sugg-item" data-lat="${r.latitude}" data-lng="${r.longitude}" data-label="${esc(label)}">${esc(label)}</div>`;
+      }).join("");
+      $("suggestions").style.display = "block";
+
+      $("suggestions").querySelectorAll(".sugg-item").forEach(el => {
+        el.addEventListener("click", () => {
+          $("lat").value  = el.dataset.lat;
+          $("lng").value  = el.dataset.lng;
+          $("locInput").value = el.dataset.label;
+          $("suggestions").style.display = "none";
+        });
+      });
+    } catch { $("suggestions").style.display = "none"; }
+  }
+
+  document.addEventListener("click", e => {
+    if(!e.target.closest(".loc-wrap")) $("suggestions").style.display="none";
+  });
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+  }
+
+  // ── Planet Glyphs ───────────────────────────────────────────────────────
+  const PLANET_ICONS = {
+    Sun:"☉", Moon:"☽", Mercury:"☿", Venus:"♀", Mars:"♂",
+    Jupiter:"♃", Saturn:"♄", Uranus:"♅", Neptune:"♆", Pluto:"♇",
+    NorthNode:"☊", Chiron:"⚷"
+  };
+
+  // ── Calculate ───────────────────────────────────────────────────────────
+  $("btnCalc").addEventListener("click", async () => {
+    const d   = $("day").value;
+    const m   = $("month").value;
+    const y   = $("year").value;
+    const h   = $("hour").value;
+    const min = $("minute").value;
+    const lat = $("lat").value;
+    const lng = $("lng").value;
+    const tz  = $("utcOffset").value;
+    const hs  = $("houseSystem").value;
+
+    if(!d||!m||!y) return showErr("Please select your full date of birth.");
+    if(h===""||min==="") return showErr("Please select your birth time.");
+    if(!lat||!lng) return showErr("Please select a city from the dropdown.");
+
+    showErr(""); $("results").style.display="none";
+    $("loader").style.display="block"; $("btnCalc").disabled=true;
+
+    try {
+      const url = `/api/birthchart?year=${y}&month=${m}&day=${d}&hour=${h}&minute=${min}&lat=${lat}&lng=${lng}&utcOffset=${tz}&houseSystem=${hs}`;
+      const resp = await fetch(url);
+      const json = await resp.json();
+
+      if(!json.ok) { showErr(json.error || "Calculation failed."); return; }
+      renderChart(json.chart);
+    } catch(e) {
+      showErr("Network error — is the API running? " + e.message);
+    } finally {
+      $("loader").style.display="none"; $("btnCalc").disabled=false;
+    }
+  });
+
+  function showErr(msg) {
+    const b = $("errBox");
+    b.textContent = msg;
+    b.style.display = msg ? "block" : "none";
+  }
+
+  function renderChart(chart) {
+    // Big Three
+    const bt = chart.bigThree;
+    $("bigThree").innerHTML = [
+      { label:"☉ Sun",       data: bt.sun       },
+      { label:"☽ Moon",      data: bt.moon      },
+      { label:"⬆ Ascendant", data: bt.ascendant }
+    ].map(({label, data}) => data ? `
+      <div class="big-card">
+        <div class="label">${label}</div>
+        <div class="glyph">${data.glyph}</div>
+        <div class="sign">${data.sign}</div>
+        <div class="deg">${data.formatted}</div>
+      </div>` : "").join("");
+
+    // Meta
+    $("metaLine").textContent = `${chart.meta.utcDateTime} · ${chart.meta.houseSystem} Houses · ${chart.meta.engine}`;
+
+    // Planets
+    $("planetsGrid").innerHTML = chart.planets.filter(p => !p.error).map(p => `
+      <div class="planet-card">
+        <div class="picon">${PLANET_ICONS[p.name] || "★"}</div>
+        <div>
+          <div class="pname">${p.name}</div>
+          <div class="psign">${p.sign} ${p.retrograde ? '<span class="retro">℞</span>' : ""}</div>
+          <div class="pdeg">${p.degree}°${String(p.minute).padStart(2,"0")}' · H${p.houseWhole}</div>
+        </div>
+      </div>`).join("");
+
+    // Houses (Whole Sign)
+    $("housesGrid").innerHTML = chart.houses.wholeSign.map(h => `
+      <div class="house-card">
+        <div class="house-num">${h.house}${ordinal(h.house)} House</div>
+        <div class="house-sign">${h.glyph} ${h.sign}</div>
+        <div class="house-theme">${h.theme}</div>
+      </div>`).join("");
+
+    $("results").style.display = "block";
+    $("results").scrollIntoView({ behavior:"smooth" });
+  }
+
+  function ordinal(n) {
+    return ["st","nd","rd"][((n%100-11)%10)-1] || "th";
+  }
+</script>
+</body>
+</html>

@@ -1,9 +1,13 @@
 {
-  "name": "astrology-api-core",
+  "name": "astro-api",
   "version": "1.0.0",
-  "type": "module",
+  "description": "Swiss Ephemeris Astrology API for whatismyzodiac.com",
+  "engines": {
+    "node": ">=20.x"
+  },
   "dependencies": {
-    "sweph": "2.10.3-5",
-    "cors": "^2.8.5"
-  }
+    "sweph": "2.10.0-11"
+  },
+  "devDependencies": {},
+  "license": "GPL-2.0"
 }
