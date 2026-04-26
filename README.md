@@ -97,4 +97,5 @@ All future endpoints share the same `calcBirthChart` core in `lib/astro-core.js`
 
 ## License
 
-GPL-2.0 (matches `sweph@2.10.0` / Swiss Ephemeris licensing)
+GPL-3.0
+Maded by alfanayn-

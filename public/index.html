@@ -363,7 +363,7 @@
     $("loader").style.display="block"; $("btnCalc").disabled=true;
 
     try {
-      const url = `/api/birthchart?year=${y}&month=${m}&day=${d}&hour=${h}&minute=${min}&lat=${lat}&lng=${lng}&utcOffset=${tz}&houseSystem=${hs}`;
+      const url = `https://astrology-api-gamma.vercel.app/api/birthchart?year=${y}&month=${m}&day=${d}&hour=${h}&minute=${min}&lat=${lat}&lng=${lng}&utcOffset=${tz}&houseSystem=${hs}`;
       const resp = await fetch(url);
       const json = await resp.json();
 
