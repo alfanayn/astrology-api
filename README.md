@@ -42,32 +42,6 @@ Parameters:
 }
 ```
 
-## Deploy to Vercel (Free)
-
-### 1. Fork & Clone
-
-```bash
-git clone https://github.com/YOUR_USERNAME/astro-api.git
-cd astro-api
-npm install
-```
-
-### 2. Deploy
-
-```bash
-npm install -g vercel
-vercel
-```
-
-That's it. Vercel auto-detects the `/api` folder and deploys serverless functions.
-
-### 3. Use from whatismyzodiac.com
-
-```js
-const response = await fetch('https://your-astro-api.vercel.app/api/birthchart?...');
-const { chart } = await response.json();
-```
-
 ## Why Moshier (no .se1 files)?
 
 Vercel serverless functions have a ~50MB bundle size limit. Swiss Ephemeris `.se1` data files are 90MB+. The Moshier semi-analytical engine built into `sweph` requires **zero data files**, deploys instantly, and achieves ~0.1° accuracy — well within the tolerance for any astrological application.
