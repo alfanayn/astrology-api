@@ -48,7 +48,12 @@ function findAspect(d1, d2) {
   for (const asp of ASPECTS) {
     const diff = Math.abs(angle - asp.angle);
     if (diff <= asp.orb) {
-      return { ...asp, orb: +diff.toFixed(2), exactness: +(asp.orb - diff).toFixed(2) };
+return { 
+  ...asp, 
+  orb: +diff.toFixed(2), 
+  exactness: +(asp.orb - diff).toFixed(2),
+  isExact: diff <= 1
+};
     }
   }
   return null;
